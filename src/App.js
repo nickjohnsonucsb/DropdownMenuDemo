@@ -4,12 +4,12 @@ import { useState } from "react";
 
 const multiSelectSettings = {
   isMultiSelect: true,
-  width: "350px",
+  variant: 'long',
 };
 
 const singleSelectSettings = {
   isMultiSelect: false,
-  width: "200px",
+  variant: 'normal',
 };
 
 function App() {

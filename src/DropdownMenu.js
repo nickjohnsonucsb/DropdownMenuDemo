@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
-function MenuItemCheckbox({ id, value, isSelected, onClick }) {
+const getItemId = (dropdownId, itemIndex) => dropdownId + "-item-" + itemIndex;
+
+function MenuItemCheckbox({ value, isSelected, onClick }) {
   return (
     <li
       className={
@@ -9,7 +12,6 @@ function MenuItemCheckbox({ id, value, isSelected, onClick }) {
           ? "bg-[#1976d21f] hover:bg-[#005ab31f]"
           : "text-gray-900 hover:bg-[#0000000a]")
       }
-      key={id}
       role="option"
       onClick={onClick}
     >
@@ -27,6 +29,12 @@ function MenuItemCheckbox({ id, value, isSelected, onClick }) {
   );
 }
 
+MenuItemCheckbox.propTypes = {
+  value: PropTypes.string.isRequired,
+  isSelected: PropTypes.bool.isRequired,
+  onClick: PropTypes.func.isRequired,
+};
+
 function MultiSelectButtons({ id, options, inputValues, setInputValues }) {
   return (
     <React.Fragment>
@@ -41,7 +49,7 @@ function MultiSelectButtons({ id, options, inputValues, setInputValues }) {
         onClick={() => {
           const newInputVals = new Map();
           options.forEach((name, index) => {
-            const itemId = (id ?? "dropdownMenu") + "-item-" + index;
+            const itemId = getItemId(id, index)
             newInputVals.set(itemId, name);
           });
           setInputValues(newInputVals);
@@ -66,7 +74,14 @@ function MultiSelectButtons({ id, options, inputValues, setInputValues }) {
   );
 }
 
-export default function DropdownMenu({
+MultiSelectButtons.propTypes = {
+  id: PropTypes.string.isRequired,
+  options: PropTypes.array.isRequired,
+  inputValues: PropTypes.object.isRequired,
+  setInputValues: PropTypes.func.isRequired
+};
+
+function DropdownMenu({
   id,
   options,
   settings,
@@ -76,13 +91,17 @@ export default function DropdownMenu({
   const [isOpen, setIsOpen] = useState(false);
   const [inputValues, setInputValues] = useState(new Map());
 
+  const inputStyles = {
+    width: settings.variant === 'long' ? '350px' : '200px'
+  }
+
   useEffect(() => {
     if (onChange) onChange(inputValues.values());
   }, [inputValues]);
 
   function toggleSelectedRows(itemId, itemValue, wasSelected) {
     let newInputVals;
-    if (settings?.isMultiSelect) {
+    if (settings.isMultiSelect) {
       newInputVals = new Map(inputValues);
       if (wasSelected) {
         newInputVals.delete(itemId);
@@ -100,7 +119,7 @@ export default function DropdownMenu({
     <div className="w-full">
       {label && (
         <label
-          id={id ?? "dropdown" + "-label"}
+          id={id + "-label"}
           className="block text-sm font-medium leading-6 text-gray-900"
         >
           {label}
@@ -108,10 +127,7 @@ export default function DropdownMenu({
       )}
 
       <div className="flex flex-row items-center gap-2">
-        <div
-          className="relative mt-2"
-          style={{ width: settings?.width ?? "200px" }}
-        >
+        <div className="relative mt-2" style={inputStyles}>
           <button
             type="button"
             className={
@@ -139,7 +155,7 @@ export default function DropdownMenu({
           {isOpen && (
             <ul className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 min-w-fit">
               {options.map((value, index) => {
-                const itemId = (id ?? "dropdownMenu") + "-item-" + index;
+                const itemId = getItemId(id, index);
                 const isSelected = inputValues.has(itemId);
                 return (
                   <MenuItemCheckbox
@@ -155,7 +171,7 @@ export default function DropdownMenu({
             </ul>
           )}
         </div>
-        {settings?.isMultiSelect && (
+        {settings.isMultiSelect && (
           <MultiSelectButtons
             id={id}
             options={options}
@@ -167,3 +183,16 @@ export default function DropdownMenu({
     </div>
   );
 }
+
+DropdownMenu.propTypes = {
+  id: PropTypes.string.isRequired,
+  options: PropTypes.array.isRequired,
+  settings: PropTypes.shape({
+    isMultiSelect: PropTypes.bool.isRequired,
+    variant: PropTypes.oneOf(['long', 'normal'])
+  }).isRequired,
+  label: PropTypes.string,
+  onChange: PropTypes.func,
+};
+
+export default DropdownMenu;
