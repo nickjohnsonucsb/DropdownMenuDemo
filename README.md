@@ -11,7 +11,7 @@
   - `npm run start`
  - On your web browser, navigate to `localhost:3000`
 
-### [DropdownMenu component](./src/DropdwonMenu.js):
+### [DropdownMenu component](./src/DropdownMenu.js):
 
 **Props:**
 ```
